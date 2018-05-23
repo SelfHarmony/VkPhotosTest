@@ -1,11 +1,12 @@
-package self.harmony.vkphotos.api
+package self.harmony.vkphotos.data.api
 
-import kotlinx.coroutines.experimental.Deferred
+import okhttp3.Response
+import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query
 import retrofit2.http.QueryMap
-import self.harmony.vkphotos.api.NetworkConfig.HOST
-import self.harmony.vkphotos.api.models.PhotosResponseHolder
+import retrofit2.http.Url
+import self.harmony.vkphotos.data.PhotosResponseHolder
 
 
 const val PHOTOS = "photos.get"
@@ -20,9 +21,18 @@ interface PhotosApi {
     // photos.get?owner_id=7496121&album_id=wall&rev=0&extended=0&offset=0&photo_sizes=0&count=2
     // &access_token=e80113e07580643526bb3bd03d86a1fc44286579497f90305eea8f96ccdbff3f06e0acbbb6c4f5ffb2b3a&v=5.75
 
-    @GET("$HOST$PHOTOS")
+//    @GET("$HOST$PHOTOS")
+//    fun getPhotos(@QueryMap staticParams: Map<String, String>,
+//                  @Query(OWNER) ownerId: String,
+//                  @Query(OFFSET) offset: String,
+//                  @Query(TOKEN) token: String): Deferred<PhotosResponseHolder>
+
+    @GET(PHOTOS)
     fun getPhotos(@QueryMap staticParams: Map<String, String>,
                   @Query(OWNER) ownerId: String,
                   @Query(OFFSET) offset: String,
-                  @Query(TOKEN) token: String): Deferred<PhotosResponseHolder>
+                  @Query(TOKEN) token: String): Call<PhotosResponseHolder>
+
+    @GET()
+    fun loadPhoto(@Url photoUrl: String): Call<Response>
 }

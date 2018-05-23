@@ -1,20 +1,21 @@
 package self.harmony.vkphotos.ui
 
-import android.app.Fragment
-import android.app.FragmentManager
-import android.app.FragmentTransaction
 import android.os.Bundle
+import android.support.design.widget.Snackbar
+import android.support.v4.app.FragmentManager
+import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AppCompatActivity
+import android.widget.Toast
+import kotlinx.android.synthetic.main.activity_main.*
 import self.harmony.vkphotos.R
-import self.harmony.vkphotos.api.NetworkModule
+import self.harmony.vkphotos.ui.fragment.photosList.PhotosListFragment
+import self.harmony.vkphotos.util.hide
+import self.harmony.vkphotos.util.show
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), Router, FragmentsUiManager {
 
-    val networkClient: NetworkModule by lazy { NetworkModule() }
-    private val fm: FragmentManager by lazy {
-        fragmentManager
-    }
+    private val fm: FragmentManager by lazy { supportFragmentManager }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,29 +23,72 @@ class MainActivity : AppCompatActivity() {
         fm.addOnBackStackChangedListener {
             val topFragment = fm.findFragmentById(R.id.mainContainer)
             when (topFragment) {
-                is Fragment -> {
+                is BaseFragment -> {
                     topFragment.view?.requestFocus()
+                    isFullScreen(topFragment.isFullScreen())
                 }
             }
         }
+       navigateToPhotosList()
     }
 
-    private fun replaceTransaction(fragment: Fragment): FragmentTransaction {
+    private fun replaceTransaction(fragment: BaseFragment): FragmentTransaction {
         val transaction = fm.beginTransaction()
-        val topFragment = fm.findFragmentById(R.id.mainContainer)
-        return if (topFragment?.javaClass == fragment.javaClass) {
+        val topFragment = fm.findFragmentById(R.id.mainContainer) as? BaseFragment
+        return if (topFragment?.javaClass == fragment) {
             transaction
         } else {
-            fm.popBackStack()
-            transaction.replace(R.id.mainContainer, fragment)
-            transaction.addToBackStack(null)
+            transaction.replace(R.id.mainContainer, fragment, fragment.TAG)
+            isFullScreen(fragment.isFullScreen())
+            println(fragment.TAG)
+            transaction
         }
     }
 
-    private fun addTransaction(fragment: Fragment): FragmentTransaction {
+    private fun addTransaction(fragment: BaseFragment): FragmentTransaction {
+        isFullScreen(fragment.isFullScreen())
         return fm.beginTransaction()
-                .add(R.id.mainContainer, fragment)
+                .add(R.id.mainContainer, fragment, fragment.TAG)
                 .addToBackStack(null)
     }
 
+    //#UiManager
+    override fun isFullScreen(fullScreenMode: Boolean) {
+        if (fullScreenMode) {
+            supportActionBar?.hide()
+        } else {
+            supportActionBar?.show()
+        }
+    }
+    override fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+    override fun showSnackBar(message: String) {
+        Snackbar.make(mainContainer, message, Snackbar.LENGTH_LONG).show()
+    }
+    override fun showLoading() {
+        mainProgressBar.show()
+    }
+    override fun hideLoading() {
+        mainProgressBar.hide()
+    }
+
+
+    //#Router
+    override fun navigateToPhotosList() {
+        replaceTransaction(PhotosListFragment.newInstance()).commit()
+    }
+}
+
+
+interface Router {
+    fun navigateToPhotosList()
+}
+
+interface FragmentsUiManager {
+    fun showToast(message: String)
+    fun showSnackBar(message: String)
+    fun isFullScreen(fullScreenMode: Boolean)
+    fun showLoading()
+    fun hideLoading()
 }

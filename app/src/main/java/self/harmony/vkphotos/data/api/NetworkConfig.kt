@@ -1,4 +1,4 @@
-package self.harmony.vkphotos.api
+package self.harmony.vkphotos.data.api
 
 //import okhttp3.OkHttpClient
 //import retrofit2.Retrofit
@@ -10,7 +10,6 @@ object NetworkConfig {
     const val CONNECT_TIMEOUT = 15L
     const val WRITE_TIMEOUT = 60L
     const val READ_TIMEOUT = 60L
-    const val HOST = "https://api.vk.com/method/"
 
 
 }
