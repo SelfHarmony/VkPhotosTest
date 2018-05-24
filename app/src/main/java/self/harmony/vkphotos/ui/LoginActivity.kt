@@ -35,9 +35,9 @@ class LoginActivity : AppCompatActivity() {
                         prefs.edit().putString(TOKEN_KEY, res.accessToken).apply()
                         prefs.edit().putString(USER_KEY, res.userId).apply()
                         navigateToMain()
-//                        val photosJob: Job = launchAsync(getPhotos(res))
+//                        val photosJob: Job = launchAsync(getUserPhotos(res))
 //
-//                            runAsync(getPhotos(res), {result ->
+//                            runAsync(getUserPhotos(res), {result ->
 //                            Toast.makeText(this@LoginActivity, result?.response?.count.toString(), Toast.LENGTH_LONG).show()
 //                        })?.response
 //                        val photoRequest = photosResponse?.items?.get(0)?.photo_604?.let { networkClient.loadPhoto(it) }

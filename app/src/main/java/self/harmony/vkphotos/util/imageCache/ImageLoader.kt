@@ -32,7 +32,7 @@ object ImageLoader : ComponentCallbacks2 {
         this.defaultResource = defaultRes
         val am = context?.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         val maxKb = am.memoryClass * 1024
-        val limitKb = maxKb / 8 //  max ram
+        val limitKb = maxKb / 6 //  max ram
         cache = if (cache == null) TCLruCache(limitKb) else cache
         return this
     }

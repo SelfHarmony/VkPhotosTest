@@ -52,6 +52,16 @@ class MainActivity : AppCompatActivity(), Router, FragmentsUiManager {
                 .addToBackStack(null)
     }
 
+    private fun onBackPressedInTopFragment(): Boolean {
+        val topFragment = fm.findFragmentById(R.id.mainContainer) as BaseFragment
+        return topFragment.onBackPressedWillExitCallback()
+    }
+
+    override fun onBackPressed() {
+        if (onBackPressedInTopFragment())
+            super.onBackPressed()
+    }
+
     //#UiManager
     override fun isFullScreen(fullScreenMode: Boolean) {
         if (fullScreenMode) {

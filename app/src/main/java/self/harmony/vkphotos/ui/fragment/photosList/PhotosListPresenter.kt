@@ -13,7 +13,7 @@ class PhotosListPresenter(private val getPhotosUseCase: UseCase<PhotosRequest, P
         view?.showLoading()
         launchOnUITryCatch ({
             val photosData = getPhotosUseCase.execute(params)
-            view?.showPhotos(photosData.items)
+            view?.showMorePhotos(photosData.items)
         }, { error ->
             error.message?.let { view?.showSnackBar(it)}
         })

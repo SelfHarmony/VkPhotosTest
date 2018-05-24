@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import dagger.Provides
 import kotlinx.android.synthetic.main.fragment_photos_list.*
 import self.harmony.vkphotos.R
+import self.harmony.vkphotos.base.OnBottomReachedListener
 import self.harmony.vkphotos.base.SimpleOnItemClickListener
 import self.harmony.vkphotos.core.App
 import self.harmony.vkphotos.core.Constants.APP_PREFERENCES
@@ -22,20 +23,26 @@ import self.harmony.vkphotos.di.PerFragment
 import self.harmony.vkphotos.domain.PhotosUseCase
 import self.harmony.vkphotos.domain.UseCase
 import self.harmony.vkphotos.ui.BaseFragment
+import self.harmony.vkphotos.util.hide
+import self.harmony.vkphotos.util.show
 import javax.inject.Inject
 
 class PhotosListFragment : BaseFragment(), Contract.view {
-    @Inject lateinit var presenter: PhotosListPresenter
+    @Inject
+    lateinit var presenter: PhotosListPresenter
 
     lateinit var component: Component
+    private val photoPreviewPagerAdapter: PhotoPreviewPagerAdapter by lazy { PhotoPreviewPagerAdapter(context)}
+
     private val photosAdapter by lazy {
-        PhotosAdapter(object : SimpleOnItemClickListener<PhotoBlock> {
-            override fun onItemClick(itemObject: PhotoBlock?) {
-                itemObject?.let {
-                    presenter.onPhotoClicked(it.imageUrl)
-                }
-            }
-        })
+        PhotosAdapter(
+                itemClickListener = object : SimpleOnItemClickListener<PhotoBlock> {
+                    override fun onItemClick(itemObject: PhotoBlock?) {
+                        itemObject?.let {
+                            onPhotoClicked(it)
+                        }
+                    }
+                })
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,13 +59,34 @@ class PhotosListFragment : BaseFragment(), Contract.view {
         val prefs = activity.application.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE)
         val token = prefs.getString(TOKEN_KEY, "")
         val userId = prefs.getString(USER_KEY, "")
-        setView()
+        setView(token, userId)
         presenter.getPhotosList(PhotosRequest(token, userId, "0"))
     }
 
-    private fun setView() {
+    private fun setView(token: String, userId: String) {
         photosListRecyclerView.adapter = photosAdapter
         photosListRecyclerView.layoutManager = GridLayoutManager(context, 2)
+        photoPreviewPager.offscreenPageLimit = 6
+        photoPreviewPager.adapter = photoPreviewPagerAdapter
+        photosAdapter.setOverscrollListener(overscrollListener = object : OnBottomReachedListener {
+            override fun onBottomReached(position: Int) {
+                presenter.getPhotosList(PhotosRequest(token, userId, position.toString()))
+            }
+        })
+        photoPreviewPagerAdapter.setOverscrollListener(overscrollListener = object : OnBottomReachedListener {
+            override fun onBottomReached(position: Int) {
+                presenter.getPhotosList(PhotosRequest(token, userId, position.toString()))
+            }
+        })
+    }
+
+    override fun onBackPressedWillExitCallback(): Boolean {
+        return if (photoPreviewPager.visibility == View.VISIBLE) {
+            photoPreviewPager.hide()
+            false
+        } else {
+            true
+        }
     }
 
     //region Dagger inject
@@ -99,9 +127,14 @@ class PhotosListFragment : BaseFragment(), Contract.view {
 
     //endregion
 
+    private fun onPhotoClicked(photoBlock: PhotoBlock) {
+        photoPreviewPager.setCurrentItem(photosAdapter.getPosition(photoBlock), false)
+        photoPreviewPager.show()
+    }
 
-    override fun showPhotos(items: List<PhotoBlock>) {
-        photosAdapter.setData(items)
+    override fun showMorePhotos(items: List<PhotoBlock>) {
+        photosAdapter.addMoreToEnd(items)
+        photoPreviewPagerAdapter.addMoreToEnd(items)
     }
 
     companion object {

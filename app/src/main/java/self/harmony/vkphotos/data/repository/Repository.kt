@@ -1,7 +1,7 @@
 package self.harmony.vkphotos.data.repository
 
-import self.harmony.vkphotos.data.PhotosResponseHolder
+import self.harmony.vkphotos.data.UserPhotoResponse
 
 interface Repository {
-    fun getPhotos(token: String, ownerId: String, offset: String): PhotosResponseHolder?
+    fun getUserPhotos(token: String, ownerId: String, offset: String): UserPhotoResponse?
 }

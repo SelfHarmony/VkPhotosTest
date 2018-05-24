@@ -25,7 +25,9 @@ abstract class BaseFragment : Fragment(), BaseContract.View {
 
     open fun isFullScreen(): Boolean = false
 
-    open fun onBackPressedCallback() {}
+    open fun onBackPressedWillExitCallback(): Boolean {
+        return true
+    }
 
 
 }

@@ -42,6 +42,10 @@ abstract class BaseRecyclerViewAdapter<T> : RecyclerView.Adapter<BaseViewHolder<
         return data[position]
     }
 
+    fun getPosition(item: T): Int {
+        return data.indexOf(item)
+    }
+
     fun addMoreToEnd(itemMessages: List<T>) {
         val startRangePosition = data.size
         data.addAll(itemMessages)

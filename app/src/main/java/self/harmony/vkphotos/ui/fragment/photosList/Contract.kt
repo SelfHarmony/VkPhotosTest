@@ -6,7 +6,7 @@ import self.harmony.vkphotos.ui.BaseContract
 
 interface Contract : BaseContract {
     interface view : BaseContract.View {
-        fun showPhotos(items: List<PhotoBlock>)
+        fun showMorePhotos(items: List<PhotoBlock>)
     }
     interface presenter: BaseContract.Presenter{
 
